@@ -18,7 +18,7 @@ protocol ScannerVCDelegate: class {
     func didFind(bardCode: String)
     func showError(error: CamaraError)
 }
-
+ 
 
 final class ScannerVC: UIViewController{
     let captureSession = AVCaptureSession()
@@ -26,7 +26,7 @@ final class ScannerVC: UIViewController{
     weak var scannerDelegate: ScannerVCDelegate?
     
     init(scannerDelegate: ScannerVCDelegate) {
-        super.init(nibName: <#T##String?#>, bundle: <#T##Bundle?#>)
+        super.init(nibName: nil, bundle: nil)
         self.scannerDelegate = scannerDelegate
     }
     
@@ -35,8 +35,25 @@ final class ScannerVC: UIViewController{
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setCaptureSession()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let previewLayer = previewLayer else {
+            scannerDelegate?.showError(error: .invalidDeviceInput)
+            return
+        }
+        previewLayer.frame = view.layer.bounds
+    }
+    
     private func setCaptureSession (){
-        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { scannerDelegate?.showError(error: .invalidDeviceInput) }
+        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else {
+            scannerDelegate?.showError(error: .invalidDeviceInput)
+            return
+        }
         let videoInput: AVCaptureDeviceInput
         
         do {
@@ -86,7 +103,8 @@ extension ScannerVC: AVCaptureMetadataOutputObjectsDelegate{
         
         guard let barcode = machineReadableCodeObject.stringValue else {
             scannerDelegate?.showError(error: .invalidScannedValue); return }
-        
+         
+        captureSession.stopRunning()
         scannerDelegate?.didFind(bardCode: barcode)
     }
 }
