@@ -78,14 +78,14 @@ final class ScannerVC: UIViewController{
 extension ScannerVC: AVCaptureMetadataOutputObjectsDelegate{
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if let metadataObject = metadataObjects.first {
-            guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else {scannerDelegate?.showError(error: .invalidScannedValue) return }
+            guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else {scannerDelegate?.showError(error: .invalidScannedValue); return }
         }
         
         guard let machineReadableCodeObject = metadataObjects.first as? AVMetadataMachineReadableCodeObject else {
-            scannerDelegate?.showError(error: .invalidScannedValue) return }
+            scannerDelegate?.showError(error: .invalidScannedValue); return }
         
         guard let barcode = machineReadableCodeObject.stringValue else {
-            scannerDelegate?.showError(error: .invalidScannedValue) return }
+            scannerDelegate?.showError(error: .invalidScannedValue); return }
         
         scannerDelegate?.didFind(bardCode: barcode)
     }
